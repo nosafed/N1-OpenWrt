@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
    inputs:
       ssh:
-        description: 'SSH connection to Actions'
+        description: 'SSH 连接到 Actions'
         required: false
         default: 'false'
 env:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Check machine configuration
+    - name: 检测机器配置
       run: |
         echo "警告⚠"
         echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
@@ -38,14 +38,14 @@ jobs:
         echo "硬盘详情："
         df -Th
         
-    - name: Before freeing up disk space
+    - name: 释放磁盘空间
       run: |
         echo "Before freeing up disk space"
         echo "=============================================================================="
         df -hT
         echo "=============================================================================="
 
-    - name: "Optimize Disk Space"
+    - name: "优化磁盘空间"
       uses: "hugoalh/disk-space-optimizer-ghaction@v0.8.1"
       with:
         operate_sudo: "True"
@@ -66,7 +66,7 @@ jobs:
         npm_clean: "True"
         os_swap: "True"
 
-    - name: Freeing up disk space
+    - name: 释放磁盘空间
       uses: easimon/maximize-build-space@master
       with: 
         root-reserve-mb: 10240
@@ -77,14 +77,14 @@ jobs:
         remove-codeql: 'true'
         remove-docker-images: 'true'
 
-    - name: Free up disk space complete
+    - name: 释放磁盘空间完成
       run: |
         echo "Free up disk space complete"
         echo "=============================================================================="
         df -hT
         echo "=============================================================================="
         
-    - name: Checkout
+    - name: 检测结束
       uses: actions/checkout@main
       
     - name: Initialize environment
@@ -103,21 +103,21 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo chown $USER:$GROUPS $GITHUB_WORKSPACE
 
-    - name: Clone source code
+    - name: 拉取源代码
       working-directory: ./
       run: |
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
         sed -i 's|https://github.com/coolsnowwolf/luci.git;openwrt-23.05|https://github.com/coolsnowwolf/luci|g' feeds.conf.default
 
-    - name: cache wrt build
+    - name: 建立缓存
       uses: stupidloud/cachewrtbuild@main
       with:
         ccache: 'true'
         mixkey: amlogic-${{ env.REPO_BRANCH }}
         prefix: ${{ github.workspace }}/openwrt
         
-    - name: Update & Install feeds
+    - name: 升级系统并安装插件
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
@@ -143,7 +143,7 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: Compile the firmware
+    - name: 编译固件
       run: |
         chmod -R 755 openwrt
         cd openwrt
@@ -151,7 +151,7 @@ jobs:
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "compile_status=success" >> $GITHUB_ENV
 
-    - name: Package OpenWrt Firmware
+    - name: 打包Openwrt固件
       if: ${{ env.compile_status }} == 'success' && !cancelled()
       uses: unifreq/openwrt_packit@master
       env:
@@ -163,7 +163,7 @@ jobs:
         SW_FLOWOFFLOAD: 1
         SFE_FLOW: 0
        
-    - name: Upload OpenWrt Firmware to Release
+    - name: 上传Openwrt固件到Release
       uses: ncipollo/release-action@main
       if: ${{ env.PACKAGED_STATUS == 'success' }} && !cancelled()
       with:
