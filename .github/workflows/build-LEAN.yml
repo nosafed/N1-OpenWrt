@@ -2,7 +2,7 @@ name: Build OpenWRT-LEAN for N1
 
 on:
   workflow_dispatch:
-inputs:
+   inputs:
       ssh:
         description: 'SSH connection to Actions'
         required: false
